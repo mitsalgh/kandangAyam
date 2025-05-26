@@ -1,7 +1,7 @@
 
-#define BLYNK_TEMPLATE_ID "YourTemplateID"
+#define BLYNK_TEMPLATE_ID "TMPL6LDCfxaFV"
 #define BLYNK_DEVICE_NAME "KandangAyam"
-#define BLYNK_AUTH_TOKEN "YourAuthToken"
+#define BLYNK_AUTH_TOKEN "cix4z8n7umkWXcnCHb_P6B6og6HznQh3"
 
 #include <WiFi.h>
 #include <BlynkSimpleEsp32.h>
@@ -10,8 +10,8 @@
 #include <RTClib.h>
 
 // WiFi credentials
-char ssid[] = "YourSSID";
-char pass[] = "YourPassword";
+char ssid[] = "kandang ayam";
+char pass[] = "kandang123";
 
 // Pin configuration
 #define DHTPIN 4
