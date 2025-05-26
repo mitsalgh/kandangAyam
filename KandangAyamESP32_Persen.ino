@@ -1,6 +1,6 @@
 
 #define BLYNK_TEMPLATE_ID "TMPL6LDCfxaFV"
-#define BLYNK_DEVICE_NAME "KandangAyam"
+#define BLYNK_DEVICE_NAME "Kandang Ayam"
 #define BLYNK_AUTH_TOKEN "cix4z8n7umkWXcnCHb_P6B6og6HznQh3"
 
 #include <WiFi.h>
