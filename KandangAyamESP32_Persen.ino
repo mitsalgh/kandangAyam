@@ -1,17 +1,20 @@
-
 #define BLYNK_TEMPLATE_ID "TMPL6LDCfxaFV"
-#define BLYNK_DEVICE_NAME "Kandang Ayam"
+#define BLYNK_TEMPLATE_NAME "Kandang Ayam"
 #define BLYNK_AUTH_TOKEN "cix4z8n7umkWXcnCHb_P6B6og6HznQh3"
 
 #include <WiFi.h>
+#include <WiFiClient.h>
 #include <BlynkSimpleEsp32.h>
-#include <DHT.h>
+#include <DHT22.h>
 #include <Wire.h>
 #include <RTClib.h>
 
+
+
+
 // WiFi credentials
-char ssid[] = "kandang ayam";
-char pass[] = "kandang123";
+char ssid[] = "WISMA WIJAYA";
+char pass[] = "12345678";
 
 // Pin configuration
 #define DHTPIN 4
@@ -24,7 +27,7 @@ char pass[] = "kandang123";
 #define TRIG_AIR 26
 #define ECHO_AIR 25
 
-DHT dht(DHTPIN, DHTTYPE);
+DHT22 dht(DHTPIN);
 RTC_DS3231 rtc;
 
 // Virtual Pins Blynk
@@ -51,8 +54,8 @@ long readDistance(int trigPin, int echoPin) {
 }
 
 void sendSensor() {
-  float temp = dht.readTemperature();
-  float humid = dht.readHumidity();
+  float temp = dht.getTemperature();
+  float humid = dht.getHumidity();
   long distPakan = readDistance(TRIG_PAKAN, ECHO_PAKAN);
   long distAir = readDistance(TRIG_AIR, ECHO_AIR);
   DateTime now = rtc.now();
@@ -60,6 +63,9 @@ void sendSensor() {
   // Konversi ke presentase (wadah: 20cm = kosong, 2cm = penuh)
   int persentasePakan = constrain(map(distPakan, 20, 2, 0, 100), 0, 100);
   int persentaseAir = constrain(map(distAir, 20, 2, 0, 100), 0, 100);
+
+  Serial.print(persentasePakan);
+  Serial.print(persentaseAir);
 
   // Kirim ke Blynk
   Blynk.virtualWrite(VP_TEMP, temp);
@@ -96,7 +102,7 @@ void setup() {
   setupUltrasonic(TRIG_PAKAN, ECHO_PAKAN);
   setupUltrasonic(TRIG_AIR, ECHO_AIR);
 
-  dht.begin();
+  // dht.begin();
   rtc.begin();
 
   Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);
