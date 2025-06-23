@@ -9,9 +9,6 @@
 #include <Wire.h>
 #include <RTClib.h>
 
-
-
-
 // WiFi credentials
 char ssid[] = "WISMA WIJAYA";
 char pass[] = "12345678";
@@ -60,27 +57,28 @@ void sendSensor() {
   long distAir = readDistance(TRIG_AIR, ECHO_AIR);
   DateTime now = rtc.now();
 
-  // Konversi ke presentase (wadah: 20cm = kosong, 2cm = penuh)
   int persentasePakan = constrain(map(distPakan, 20, 2, 0, 100), 0, 100);
   int persentaseAir = constrain(map(distAir, 20, 2, 0, 100), 0, 100);
 
+  temp = 28;
+  humid = 80;
+  Serial.print("Pakan: ");
   Serial.print(persentasePakan);
+  Serial.print("% | Air: ");
   Serial.print(persentaseAir);
+  Serial.println("%");
 
-  // Kirim ke Blynk
   Blynk.virtualWrite(VP_TEMP, temp);
   Blynk.virtualWrite(VP_HUMID, humid);
   Blynk.virtualWrite(VP_PAKAN, persentasePakan);
   Blynk.virtualWrite(VP_AIR, persentaseAir);
 
-  // Buzzer aktif jika suhu >35 atau kelembapan <40
   if (temp > 35 || humid < 40) {
     digitalWrite(BUZZER_PIN, HIGH);
   } else {
     digitalWrite(BUZZER_PIN, LOW);
   }
 
-  // Lampu aktif jika pakan atau air kurang dari 30%
   if (persentasePakan < 30 || persentaseAir < 30) {
     digitalWrite(RELAY_PIN, HIGH);
   } else {
@@ -93,20 +91,55 @@ BLYNK_WRITE(VP_LAMP_SWITCH) {
   digitalWrite(RELAY_PIN, lampState);
 }
 
+void connectToWiFi() {
+  Serial.print("Menghubungkan ke WiFi");
+  WiFi.begin(ssid, pass);
+  int retry = 0;
+  while (WiFi.status() != WL_CONNECTED && retry < 20) {
+    delay(500);
+    Serial.print(".");
+    retry++;
+  }
+
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println("\nWiFi terhubung!");
+    Serial.print("IP Address: ");
+    Serial.println(WiFi.localIP());
+  } else {
+    Serial.println("\nGagal koneksi WiFi.");
+  }
+}
+
+void checkConnection() {
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("WiFi terputus! Mencoba koneksi ulang...");
+    connectToWiFi();
+  }
+
+  if (!Blynk.connected()) {
+    Serial.println("Blynk tidak terhubung! Mencoba koneksi ulang...");
+    Blynk.connect();
+  }
+
+  if (WiFi.status() == WL_CONNECTED && Blynk.connected()) {
+    Serial.println("Koneksi ke WiFi dan Blynk OK.");
+  }
+}
+
 void setup() {
   Serial.begin(115200);
-
   pinMode(BUZZER_PIN, OUTPUT);
   pinMode(RELAY_PIN, OUTPUT);
-
   setupUltrasonic(TRIG_PAKAN, ECHO_PAKAN);
   setupUltrasonic(TRIG_AIR, ECHO_AIR);
-
-  // dht.begin();
   rtc.begin();
 
-  Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);
-  timer.setInterval(5000L, sendSensor); // Update setiap 5 detik
+  connectToWiFi();                    // Mulai WiFi manual
+  Blynk.config(BLYNK_AUTH_TOKEN);    // Konfigurasi token
+  Blynk.connect();                   // Mulai koneksi Blynk manual
+
+  timer.setInterval(5000L, sendSensor);
+  timer.setInterval(10000L, checkConnection);
 }
 
 void loop() {
