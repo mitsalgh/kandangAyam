@@ -138,7 +138,7 @@ void sendSensor() {
     else if (temp >= 33 || humid < 40) { //set point temp
       digitalWrite(RELAY_PIN, HIGH);  // matikan lampu
       flagStateOn=1;
-    } else if (temp == 30 && flageStateOn==1)  {
+    } else if (temp == 30 && flagStateOn==1)  {
       flagStateOn=0;   // nyalakan lampu
     }
   }
