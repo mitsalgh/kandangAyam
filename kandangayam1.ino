@@ -16,6 +16,7 @@ char pass[] = "wawan123";
 
 int lampState;
 bool flagSwitch = 0; // 0 = normal, 1 = override manual
+int flagStateOn=0;
 
 
 
